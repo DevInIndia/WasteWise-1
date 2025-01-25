@@ -1,8 +1,9 @@
+import "./globals.css";
 
 export default function Home() {
   return (
-    <>
-    <div>HELLO WORLD</div>
-    </>
+    <main className="p-4">
+      <h1>WasteWise</h1>
+    </main>
   );
 }
