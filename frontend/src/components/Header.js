@@ -34,7 +34,7 @@ const Header = () => {
     }, [user]);
 
     return (
-        <div className="bg-darkGreen h-20 w-full border-b-2 flex items-center justify-between px-4 sm:px-6 lg:px-8 text-white text-lg">
+        <div className=" bg-darkGreen h-20 w-full border-b-2 flex items-center justify-between px-4 sm:px-6 lg:px-8 text-white text-lg">
             {/* Logo */}
             <div className="flex items-center space-x-2">
                 <Image
