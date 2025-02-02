@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import ChatInput from './chat-input';
-import { GoogleGenerativeAI, ChatSession, GenerativeModel } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { db, collection, addDoc } from '../app/firebaseConfig';
+import { useSession } from 'next-auth/react';
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 if (!apiKey) {
@@ -22,6 +24,7 @@ const generationConfig = {
 };
 
 export default function PromptPage() {
+  const { data: session } = useSession(); // Get the session for user info
   const [chatSession, setChatSession] = useState(null);
   const [result, setResult] = useState(null);
 
@@ -68,10 +71,24 @@ export default function PromptPage() {
       console.log("Raw AI Response:", responseText);
 
       responseText = responseText.replace(/\*\*/g, "").replace(/\*/g, "");
-
       console.log("Cleaned AI Response:", responseText);
       setResult(responseText);
 
+      // Store in Firestore after response is generated
+      if (session) {
+        const user = session.user;
+        const userInputData = {
+          userEmail: user.email,
+          prompt: text,
+          result: response.response.text(),
+          imageUrl: image ? await fileToGenerativePart(image) : null, // optional image
+          createdAt: new Date(),
+        };
+
+        // Add the data to Firestore
+        await addDoc(collection(db, "userPrompts"), userInputData);
+        console.log("User data saved to Firestore.");
+      }
     } catch (error) {
       console.error("Error processing input:", error);
       setResult("An error occurred while processing your request.");
@@ -101,8 +118,6 @@ export default function PromptPage() {
                 </div>
             )}
         </div>
-
-
       </main>
     </div>
   );

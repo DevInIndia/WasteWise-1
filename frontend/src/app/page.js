@@ -1,23 +1,14 @@
 "use client"
 import "./globals.css";
-import { useEffect, useState } from "react";
-import { auth } from "./firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
+import { useSession } from "next-auth/react";
 import PromptPage from "../components/PromptPage";
+
 export default function Home() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user); // Set user state if logged in, otherwise null
-    });
-
-    return () => unsubscribe(); // Cleanup subscription
-  }, []);
+  const { data: session } = useSession();
 
   return (
     <main>
-      {user ? (
+      {session ? (
         <PromptPage/>
       ) : (
         <h1>WasteWise</h1>
