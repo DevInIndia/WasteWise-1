@@ -1,30 +1,14 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { UserAuth } from '../context/AuthContext';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 
 const Header = () => {
-    const { user, googleSignIn, logOut } = UserAuth();
+    const { data: session, status } = useSession();
     const [loading, setLoading] = useState(true);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     let closeTimeout;
-
-    const handleSignIn = async () => {
-        try {
-            await googleSignIn();
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const handleSignOut = async () => {
-        try {
-            await logOut();
-        } catch (error) {
-            console.log(error);
-        }
-    };
 
     useEffect(() => {
         const checkAuthentication = async () => {
@@ -32,10 +16,10 @@ const Header = () => {
             setLoading(false);
         };
         checkAuthentication();
-    }, [user]);
+    }, [status]);
 
     return (
-        <div className="bg-darkGreen h-20 w-full border-b-2 flex items-center justify-between px-4 sm:px-6 lg:px-8 text-white text-lg">
+        <div className="relative bg-darkGreen h-20 w-full border-b-2 flex items-center justify-between px-4 sm:px-6 lg:px-8 text-white text-lg z-50">
             {/* Logo */}
             <div className="flex items-center space-x-2">
                 <Image
@@ -52,7 +36,7 @@ const Header = () => {
 
             {/* Hamburger Menu */}
             <button
-                className="sm:hidden block text-white focus:outline-none"
+                className="sm:hidden block text-white focus:outline-none z-50"
                 onClick={() => setMenuOpen(!menuOpen)}
             >
                 <svg
@@ -75,8 +59,9 @@ const Header = () => {
             <ul
                 className={`sm:flex sm:space-x-4 sm:items-center sm:justify-center ${
                     menuOpen ? 'block' : 'hidden'
-                } absolute sm:static top-20 left-0 w-full bg-darkGreen sm:bg-transparent px-4 sm:px-0 text-center`}
+                } absolute sm:static top-20 left-0 w-full bg-darkGreen sm:bg-transparent px-4 sm:px-0 text-center z-50 shadow-none mt-0`}
             >
+
                 <li className="p-2">
                     <Link href="/">Home</Link>
                 </li>
@@ -92,16 +77,16 @@ const Header = () => {
             </ul>
 
             {/* User Profile Section */}
-            {!loading &&
-                (user ? (
+            {!loading && (
+                session ? (
                     <div
-                        className="relative"
+                        className="relative z-50"
                         onMouseEnter={() => {
-                            clearTimeout(closeTimeout); // Prevent dropdown from closing too soon
+                            clearTimeout(closeTimeout);
                             setDropdownOpen(true);
                         }}
                         onMouseLeave={() => {
-                            closeTimeout = setTimeout(() => setDropdownOpen(false), 300); // Delay closing
+                            closeTimeout = setTimeout(() => setDropdownOpen(false), 300);
                         }}
                     >
                         <button
@@ -109,7 +94,7 @@ const Header = () => {
                             className="flex items-center space-x-2"
                         >
                             <Image
-                                src={user.photoURL}
+                                src={session.user.image}
                                 alt="User Profile"
                                 width={40}
                                 height={40}
@@ -120,15 +105,16 @@ const Header = () => {
                         {dropdownOpen && (
                             <div
                                 className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg text-black z-50"
-                                onMouseEnter={() => clearTimeout(closeTimeout)} // Keep it open when hovered
-                                onMouseLeave={() => setDropdownOpen(false)} // Close when leaving dropdown
+                                onMouseEnter={() => clearTimeout(closeTimeout)}
+                                onMouseLeave={() => setDropdownOpen(false)}
                             >
                                 <button
-                                    onClick={handleSignOut}
+                                    onClick={() => signOut()}
                                     className="w-full text-left px-4 py-2 hover:bg-gray-200"
                                 >
-                                    Sign Out
+                                    SignOut
                                 </button>
+                                
                                 <Link href="/profile" className="block px-4 py-2 hover:bg-gray-200">
                                     Go to Profile
                                 </Link>
@@ -137,12 +123,13 @@ const Header = () => {
                     </div>
                 ) : (
                     <button
-                        onClick={handleSignIn}
-                        className="bg-lightGreen hover:border hover:border-white text-darkGreen px-4 py-2 rounded transition-all"
+                        onClick={() => signIn()}
+                        className="bg-lightGreen hover:border hover:border-white text-darkGreen px-4 py-2 rounded transition-all z-50"
                     >
                         SignIn
                     </button>
-                ))}
+                )
+            )}
         </div>
     );
 };
