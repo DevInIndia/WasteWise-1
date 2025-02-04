@@ -19,7 +19,7 @@ const Header = () => {
     }, [status]);
 
     return (
-        <div className="bg-darkGreen h-20 w-full border-b-2 flex items-center justify-between px-4 sm:px-6 lg:px-8 text-white text-lg">
+        <div className="relative bg-darkGreen h-20 w-full border-b-2 flex items-center justify-between px-4 sm:px-6 lg:px-8 text-white text-lg z-50">
             {/* Logo */}
             <div className="flex items-center space-x-2">
                 <Image
@@ -36,7 +36,7 @@ const Header = () => {
 
             {/* Hamburger Menu */}
             <button
-                className="sm:hidden block text-white focus:outline-none"
+                className="sm:hidden block text-white focus:outline-none z-50"
                 onClick={() => setMenuOpen(!menuOpen)}
             >
                 <svg
@@ -59,8 +59,9 @@ const Header = () => {
             <ul
                 className={`sm:flex sm:space-x-4 sm:items-center sm:justify-center ${
                     menuOpen ? 'block' : 'hidden'
-                } absolute sm:static top-20 left-0 w-full bg-darkGreen sm:bg-transparent px-4 sm:px-0 text-center`}
+                } absolute sm:static top-20 left-0 w-full bg-darkGreen sm:bg-transparent px-4 sm:px-0 text-center z-50 shadow-none mt-0`}
             >
+
                 <li className="p-2">
                     <Link href="/">Home</Link>
                 </li>
@@ -79,7 +80,7 @@ const Header = () => {
             {!loading && (
                 session ? (
                     <div
-                        className="relative"
+                        className="relative z-50"
                         onMouseEnter={() => {
                             clearTimeout(closeTimeout);
                             setDropdownOpen(true);
@@ -123,7 +124,7 @@ const Header = () => {
                 ) : (
                     <button
                         onClick={() => signIn()}
-                        className="bg-lightGreen hover:border hover:border-white text-darkGreen px-4 py-2 rounded transition-all"
+                        className="bg-lightGreen hover:border hover:border-white text-darkGreen px-4 py-2 rounded transition-all z-50"
                     >
                         SignIn
                     </button>
