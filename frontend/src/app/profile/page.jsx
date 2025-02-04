@@ -50,20 +50,22 @@ const Profile = () => {
     }, [session]);
 
     return (
-        <div className='p-4'>
-            {loading ? (
-                <p>Loading...</p>
-            ) : session ? (
-              <>
-                <p className='text-darkGreen font-extrabold text-2xl'>Disposal history:</p>
-                <CardList data={prompts} />
-              </>
-                
-            ) : (
-                <p>You must be logged in to view this page - protected route</p>
-            )}
-            
-            </div>
+      <div className='p-4'>
+        {loading ? (
+          <p>Loading...</p>
+        ) : session ? (
+          <>
+          <p className='text-darkGreen font-extrabold text-2xl'>Disposal history:</p>
+          {prompts.length === 0 ? (
+            <p>No prompts found.</p>
+          ) : (
+            <CardList data={prompts} />
+          )}
+          </>
+        ) : (
+          <p>You must be logged in to view this page - protected route</p>
+        )}
+      </div>
     );
 };
 
