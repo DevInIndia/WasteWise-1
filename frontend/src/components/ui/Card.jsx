@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const Card = ({ imageUrl, prompt, result, createdAt }) => {
+import { db } from "../../app/firebaseConfig";
+import { doc, deleteDoc } from "firebase/firestore";
+const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const router = useRouter();
@@ -13,11 +14,8 @@ const Card = ({ imageUrl, prompt, result, createdAt }) => {
   const deleteCard = async (e) => {
     e.stopPropagation();
     try {
-      await fetch(`/api/deleteCard`, {
-        method: "POST",
-        body: JSON.stringify({ createdAt }),
-      });
-
+      await deleteDoc(doc(db, "userPrompts", id));
+      alert("Card deleted successfully");
       setIsDeleted(true);
     } catch (error) {
       console.error("Failed to delete card:", error);
