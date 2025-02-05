@@ -2,14 +2,60 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "../../app/firebaseConfig";
-import { doc, deleteDoc } from "firebase/firestore";
+import {  collection, query, where, getDocs, addDoc,doc, deleteDoc } from "firebase/firestore";
+import { useSession } from "next-auth/react";
+
 const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const router = useRouter();
-
+  const { data: session } = useSession();
+  const [isSharing, setIsSharing] = useState(false);
   const date = new Date(createdAt.seconds * 1000);
   const formattedDate = date.toLocaleString();
+
+  const shareToComminity = async (e) => {
+    e.stopPropagation();
+    if (!session) {
+      alert("Please sign in to share to community");
+      return;
+    }
+
+    setIsSharing(true);
+    try {
+      // Check if already shared
+      const existingQuery = query(
+        collection(db, "communityPosts"),
+        where("originalId", "==", id)
+      );
+      const existingDocs = await getDocs(existingQuery);
+
+      if (!existingDocs.empty) {
+        alert("This card is already shared to the community!");
+        return;
+      }
+
+      await addDoc(collection(db, "communityPosts"), {
+        originalId: id,
+        imageUrl,
+        prompt,
+        result,
+        createdAt: new Date(),
+        userEmail: session.user.email,
+        userName: session.user.name,
+        userImage: session.user.image,
+        likes: [],
+        comments: [],
+      });
+
+      alert("Successfully shared to community!");
+    } catch (error) {
+      console.error("Error sharing to community:", error);
+      alert("Failed to share to community");
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   const deleteCard = async (e) => {
     e.stopPropagation();
@@ -53,7 +99,9 @@ const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
             >
               &times;
             </button>
-            <h2 className="text-xl sm:text-2xl font-semibold text-white">{prompt || "No Title"}</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold text-white">
+              {prompt || "No Title"}
+            </h2>
             <p className="text-sm text-gray-400">{formattedDate}</p>
             <p className="text-sm text-gray-300 mt-2">{prompt}</p>
             <p className="text-gray-200 mt-2">{result}</p>
@@ -71,13 +119,13 @@ const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
           {/* Adjusted Button Positioning - Moved Outside */}
           <div className="absolute -top-3 right-3 flex space-x-2">
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push("/Community");
-              }}
-              className="bg-darkGreen text-white w-8 h-8 flex items-center justify-center rounded-md shadow-md hover:scale-105 transition-transform"
+              onClick={shareToComminity}
+              disabled={isSharing}
+              className="bg-darkGreen text-white w-8 h-8 flex items-center justify-center 
+               rounded-md shadow-md hover:scale-105 transition-transform 
+               disabled:opacity-50 disabled:hover:scale-100"
             >
-              +
+              {isSharing ? "..." : "+"}
             </button>
             <button
               onClick={deleteCard}
@@ -87,15 +135,25 @@ const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
             </button>
           </div>
 
-          <h2 className="text-lg sm:text-xl font-semibold text-darkGreen mt-2">{prompt || "No Title"}</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-darkGreen mt-2">
+            {prompt || "No Title"}
+          </h2>
           <p className="text-xs sm:text-sm text-darkGreen">{formattedDate}</p>
 
-          {imageUrl && typeof imageUrl === "string" && imageUrl.startsWith("data:image") && (
-            <img src={imageUrl} alt="Image" className="mt-2 w-full max-w-md rounded-md" />
-          )}
+          {imageUrl &&
+            typeof imageUrl === "string" &&
+            imageUrl.startsWith("data:image") && (
+              <img
+                src={imageUrl}
+                alt="Image"
+                className="mt-2 w-full max-w-md rounded-md"
+              />
+            )}
 
           <p className="text-xs sm:text-sm text-darkGreen mt-1">{prompt}</p>
-          <p className="text-darkGreen mt-2 text-xs sm:text-sm">{result.slice(0, 100)}...</p>
+          <p className="text-darkGreen mt-2 text-xs sm:text-sm">
+            {result.slice(0, 100)}...
+          </p>
 
           <motion.div
             initial={{ opacity: 0.5 }}
