@@ -1,11 +1,8 @@
-import React from 'react'
 
 const community
  = () => {
   return (
-    <div>
-      community
-
+    <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4">
     </div>
   )
 }
