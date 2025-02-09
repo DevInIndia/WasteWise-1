@@ -3,8 +3,6 @@
 import { useState, useRef } from 'react';
 import ChatInput from './chat-input';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { db } from '../app/firebaseConfig';
-import { collection, addDoc } from 'firebase/firestore';
 import { useSession } from 'next-auth/react';
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
@@ -35,7 +33,7 @@ export default function PromptPage() {
         setResult("AI functionality is disabled. Please configure the API key.");
         return;
       }
-
+  
       if (!chatSession.current) {
         chatSession.current = model.startChat({
           generationConfig,
@@ -47,37 +45,44 @@ export default function PromptPage() {
           ],
         });
       }
-
+  
       let prompt = text;
       let imageUrl = null;
       if (image) {
         const imageData = await fileToGenerativePart(image);
         prompt = [imageData, text];
-        imageUrl = imageData.inlineData.data; // Store base64-encoded image
+        imageUrl = imageData.inlineData.data;
       }
-
+  
       const response = await chatSession.current.sendMessage(prompt);
       let responseText = response?.response?.text() || "No response received.";
       responseText = responseText.replace(/\*\*/g, "").replace(/\*/g, "");
-
+  
       setResult(responseText);
-
+  
       if (session) {
         const user = session.user;
-        await addDoc(collection(db, "userPrompts"), {
-          userEmail: user.email,
-          prompt: text,
-          result: responseText,
-          imageUrl: imageUrl,
-          createdAt: new Date(),
+  
+        // Send data to API route instead of Firestore directly
+        await fetch("/api/prompts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userEmail: user.email,
+            prompt: text,
+            result: responseText,
+            imageUrl: imageUrl,
+          }),
         });
-        console.log("User data saved to Firestore.");
+  
+        console.log("User data sent to API.");
       }
     } catch (error) {
       console.error("Error processing input:", error);
       setResult("An error occurred while processing your request.");
     }
   };
+  
 
   return (
     <div className="flex flex-col min-h-screen">
