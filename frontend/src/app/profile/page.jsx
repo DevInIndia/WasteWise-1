@@ -1,33 +1,45 @@
-"use client";
-import CardList from "@/src/components/ui/CardList";
-import { collection, getDocs, query, where } from "firebase/firestore";
-import { Loader } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { db } from "../firebaseConfig";
+"use client"
+import CardList from '@/src/components/ui/CardList';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { db } from '../firebaseConfig';
+
 
 const Profile = () => {
-  const { data: session, status } = useSession();
-  const [loading, setLoading] = useState(true);
-  const [prompts, setPrompts] = useState([]);
-
-  useEffect(() => {
-    if (session?.user?.email) {
-      const fetchPrompts = async () => {
-        try {
-          const promptsRef = collection(db, "userPrompts");
-          const q = query(promptsRef, where("userEmail", "==", session.user.email));
-          const querySnapshot = await getDocs(q);
-          if (!querySnapshot.empty) {
-            setPrompts(querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    const { data: session, status } = useSession();
+    const [loading, setLoading] = useState(true);
+    const [prompts,setPrompts]=useState([]);
+    // Fetch user prompts from Firestore
+    useEffect(() => {
+      if (session?.user?.email) {
+        const fetchPrompts = async () => {
+          try {
+            // Query the userPrompts collection and filter by user email
+            const promptsRef = collection(db, "userPrompts");
+            const q = query(promptsRef, where("userEmail", "==", session.user.email));
+  
+            const querySnapshot = await getDocs(q);
+  
+            if (querySnapshot.empty) {
+              console.log("No prompts found.");
+            } else {
+              const userPrompts = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+              }));
+  
+              console.log("Fetched Prompts:", userPrompts);
+              setPrompts(userPrompts);
+            }
+          } catch (error) {
+            console.error("Error fetching prompts:", error);
           }
-        } catch (error) {
-          console.error("Error fetching prompts:", error);
-        }
-      };
-      fetchPrompts();
-    }
-  }, [session]);
+        };
+  
+        fetchPrompts();
+      }
+    }, [session]);
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -37,44 +49,24 @@ const Profile = () => {
     checkAuthentication();
   }, [session]);
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-center px-4">
-      <div className="w-full max-w-5xl bg-white shadow-lg rounded-xl p-6 flex gap-6">
-
-        <div className="w-1/3 bg-gray-100 p-6 rounded-lg shadow-md flex flex-col items-center">
-          {session?.user?.image && (
-            <img src={session.user.image} alt="Profile" className="w-24 h-24 rounded-full mb-4" />
-          )}
-          <h3 className="text-xl font-bold">{session?.user?.name || "User"}</h3>
-          <div className="flex justify-between w-full mt-4">
-            <div className="text-center">
-              <p className="text-lg font-semibold">0</p>
-              <p className="text-sm text-gray-500">Disposals</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-semibold">0</p>
-              <p className="text-sm text-gray-500">Scans</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-2/3">
-          <h2 className="text-darkGreen font-bold text-2xl mb-4">Disposal History</h2>
-          {loading ? (
-            <div className="flex justify-center items-center h-40">
-              <Loader className="animate-spin text-darkGreen" size={32} />
-            </div>
-          ) : prompts.length === 0 ? (
-            <p className="text-gray-600 text-center">No prompts found.</p>
+    return (
+      <div className='p-4'>
+        {loading ? (
+          <p>Loading...</p>
+        ) : session ? (
+          <>
+          <p className='text-darkGreen font-extrabold text-2xl'>Disposal history:</p>
+          {prompts.length === 0 ? (
+            <p>No prompts found.</p>
           ) : (
-            <div className="flex overflow-x-auto space-x-4">
-              <CardList data={prompts} />
-            </div>
+            <CardList data={prompts} />
           )}
-        </div>
+          </>
+        ) : (
+          <p>You must be logged in to view this page - protected route</p>
+        )}
       </div>
-    </div>
-  );
+    );
 };
 
 export default Profile;
