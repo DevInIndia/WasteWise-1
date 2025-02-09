@@ -46,7 +46,7 @@ const Community = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col items-center px-4 py-6 md:flex-row md:justify-center">
       <div className="w-full max-w-7xl flex flex-col gap-6 md:flex-row">
         <div className="flex-1 bg-white shadow-lg rounded-xl p-6 flex flex-col gap-6">
-          <h2 className="text-darkGreen font-bold text-2xl">Groups Feed</h2>
+          <h2 className="text-darkGreen font-bold text-2xl">Community Feed</h2>
           <p className="text-gray-600">View groups and posts below.</p>
 
           {session && (
