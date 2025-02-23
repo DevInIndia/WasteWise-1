@@ -1,4 +1,3 @@
-// app/api/prompts/route.js
 import { NextResponse } from "next/server";
 import { db } from "../../firebaseConfig";
 import { collection, query, where, getDocs,addDoc ,serverTimestamp} from "firebase/firestore";
@@ -28,7 +27,7 @@ export async function POST(req) {
   }
 }
 
-// GET route to fetch prompts by user email
+
 export async function GET(request) {
   try {
     const url = new URL(request.url);

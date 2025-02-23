@@ -1,8 +1,6 @@
 "use client"
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { collection, query, orderBy, getDocs, updateDoc, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
 import { ArrowBigUp, ArrowBigDown, MessageSquare, Share2 } from 'lucide-react';
 
 export default function Community() {
@@ -18,23 +16,10 @@ export default function Community() {
 
   const fetchPosts = async () => {
     try {
-      let q;
-      switch(sortBy) {
-        case 'top':
-          q = query(collection(db, "communityPosts"), orderBy("voteCount", "desc"));
-          break;
-        case 'hot':
-          q = query(collection(db, "communityPosts"), orderBy("commentCount", "desc"));
-          break;
-        default: // 'new'
-          q = query(collection(db, "communityPosts"), orderBy("createdAt", "desc"));
-      }
-      
-      const snapshot = await getDocs(q);
-      const fetchedPosts = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const response = await fetch(`/api/communityPosts?sortBy=${sortBy}`);
+      if (!response.ok) throw new Error("Failed to fetch posts");
+  
+      const fetchedPosts = await response.json();
       setPosts(fetchedPosts);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -42,41 +27,57 @@ export default function Community() {
       setLoading(false);
     }
   };
+  
 
   const handleVote = async (postId, isUpvote) => {
     if (!session) {
       alert("Please sign in to vote");
       return;
     }
-
+  
     try {
-      const postRef = doc(db, "communityPosts", postId);
       const post = posts.find(p => p.id === postId);
       const userEmail = session.user.email;
-
-      if (post.upvotes?.includes(userEmail) && isUpvote) {
-        await updateDoc(postRef, {
-          upvotes: arrayRemove(userEmail),
-          voteCount: (post.voteCount || 0) - 1
-        });
-      } else if (post.downvotes?.includes(userEmail) && !isUpvote) {
-        await updateDoc(postRef, {
-          downvotes: arrayRemove(userEmail),
-          voteCount: (post.voteCount || 0) + 1
-        });
-      } else {
-        await updateDoc(postRef, {
-          [isUpvote ? 'upvotes' : 'downvotes']: arrayUnion(userEmail),
-          [isUpvote ? 'downvotes' : 'upvotes']: arrayRemove(userEmail),
-          voteCount: (post.voteCount || 0) + (isUpvote ? 1 : -1)
-        });
-      }
       
-      fetchPosts();
+      // Check if user is trying to vote the same way again
+      if (isUpvote && post.upvotes?.includes(userEmail) || 
+          !isUpvote && post.downvotes?.includes(userEmail)) {
+        // This is a vote cancellation
+      } else if (isUpvote && post.downvotes?.includes(userEmail) ||
+                 !isUpvote && post.upvotes?.includes(userEmail)) {
+        // This is a vote switch
+      }
+  
+      const response = await fetch("/api/communityPosts/vote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId, userEmail, isUpvote }),
+      });
+  
+      const { data } = await response.json();
+      if (!response.ok) throw new Error(data.error);
+  
+      // Update the posts state with the exact data from the server
+      setPosts(prevPosts =>
+        prevPosts.map(post =>
+          post.id === postId
+            ? {
+                ...post,
+                upvotes: data.upvotes,
+                downvotes: data.downvotes,
+                voteCount: data.voteCount
+              }
+            : post
+        )
+      );
     } catch (error) {
       console.error("Error voting:", error);
+      alert("Failed to update vote");
     }
   };
+  
+  
+  
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -101,11 +102,11 @@ export default function Community() {
             <div key={post.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}>
               <div className="flex p-4">
                 <div className="flex flex-col items-center p-2 bg-gray-50 rounded-l-lg">
-                  <button onClick={(e) => { e.stopPropagation(); handleVote(post.id, true); }} className={`p-1 rounded ${post.upvotes?.includes(session?.user?.email) ? 'text-orange-500' : ''}`}>
+                  <button onClick={(e) => { e.stopPropagation(); handleVote(post.id, true); }} className={`p-1 rounded ${post.upvotes?.includes(session?.user?.email) ? 'text-darkGreen' : ''}`}>
                     <ArrowBigUp />
                   </button>
                   <span className="my-1 font-bold">{post.voteCount || 0}</span>
-                  <button onClick={(e) => { e.stopPropagation(); handleVote(post.id, false); }} className={`p-1 rounded ${post.downvotes?.includes(session?.user?.email) ? 'text-blue-500' : ''}`}>
+                  <button onClick={(e) => { e.stopPropagation(); handleVote(post.id, false); }} className={`p-1 rounded ${post.downvotes?.includes(session?.user?.email) ? 'text-orange-500' : ''}`}>
                     <ArrowBigDown />
                   </button>
                 </div>
