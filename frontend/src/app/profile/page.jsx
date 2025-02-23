@@ -13,7 +13,7 @@ const Profile = () => {
     if (session?.user?.email) {
       const fetchPrompts = async () => {
         try {
-          const response = await fetch(`/api/prompts?email=${session.user.email}`, {  // Use query parameter for email
+          const response = await fetch(`/api/prompts?email=${session.user.email}`, {  // query parameter for email
             method: 'GET',
           });
 
