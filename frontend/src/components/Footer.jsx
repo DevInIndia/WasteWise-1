@@ -4,19 +4,7 @@ const Footer = () => {
   return (
     <footer className="text-white">
 
-      {/* FOOTER */}
-
-      <div className="bg-[#D4DCD3] text-darkGreen py-10 px-6 md:px-12 lg:px-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="text-left">
-          <p className="text-sm">HEARD</p>
-          <p className="text-sm">ENOUGH? →</p>
-        </div>
-        <div className="sm:col-span-1 lg:col-span-2 flex justify-start sm:justify-center lg:justify-start">
-          <h2 className="text-4xl sm:text-5xl font-bold">Contact us</h2>
-        </div>
-      </div>
-
-      {/* Bottom Section */}
+      
       <div className="bg-darkGreen py-10 px-6 md:px-12 lg:px-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-white">
         {/* Logo & Name */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start space-x-0 sm:space-x-4 text-center sm:text-left">

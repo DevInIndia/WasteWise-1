@@ -54,7 +54,7 @@ export async function POST(req) {
       userEmail,
       userName,
       userImage,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
       voteCount: 0, 
       upvotes: [],
       downvotes: [],
