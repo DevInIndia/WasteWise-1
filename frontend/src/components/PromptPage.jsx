@@ -24,7 +24,7 @@ const generationConfig = {
 
 export default function PromptPage() {
   const { data: session } = useSession();
-  const chatSession = useRef(null); // Use useRef instead of useState
+  const chatSession = useRef(null); 
   const [result, setResult] = useState(null);
 
   const handleSubmit = async (text, image) => {
@@ -63,7 +63,7 @@ export default function PromptPage() {
       if (session) {
         const user = session.user;
   
-        // Send data to API route instead of Firestore directly
+        // Send data to API route 
         await fetch("/api/prompts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -7,6 +7,7 @@ import { db } from '../firebaseConfig';
 
 
 const Profile = () => {
+<<<<<<< HEAD
     const { data: session, status } = useSession();
     const [loading, setLoading] = useState(true);
     const [prompts,setPrompts]=useState([]);
@@ -34,6 +35,23 @@ const Profile = () => {
             }
           } catch (error) {
             console.error("Error fetching prompts:", error);
+=======
+  const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(true);
+  const [prompts, setPrompts] = useState([]);
+
+  // Fetch user prompts from Firestore
+  useEffect(() => {
+    if (session?.user?.email) {
+      const fetchPrompts = async () => {
+        try {
+          const response = await fetch(`/api/prompts?email=${session.user.email}`, {  // query parameter for email
+            method: 'GET',
+          });
+
+          if (!response.ok) {
+            throw new Error('Error fetching prompts');
+>>>>>>> 3dfd0d23f41a5e1f9d7a35ddec10ad6a656019c3
           }
         };
   

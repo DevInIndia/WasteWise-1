@@ -14,59 +14,55 @@ const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
   const date = new Date(createdAt.seconds * 1000);
   const formattedDate = date.toLocaleString();
 
-  const shareToComminity = async (e) => {
-    e.stopPropagation();
-    if (!session) {
-      alert("Please sign in to share to community");
-      return;
-    }
+  const shareToCommunity = async (e) => {
+  e.stopPropagation();
+  if (!session) {
+    alert("Please sign in to share to community");
+    return;
+  }
 
-    setIsSharing(true);
-    try {
-      // Check if already shared
-      const existingQuery = query(
-        collection(db, "communityPosts"),
-        where("originalId", "==", id)
-      );
-      const existingDocs = await getDocs(existingQuery);
-
-      if (!existingDocs.empty) {
-        alert("This card is already shared to the community!");
-        return;
-      }
-
-      await addDoc(collection(db, "communityPosts"), {
-        originalId: id,
+  setIsSharing(true);
+  try {
+    const response = await fetch("/api/communityPosts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id,
         imageUrl,
         prompt,
         result,
-        createdAt: new Date(),
         userEmail: session.user.email,
         userName: session.user.name,
         userImage: session.user.image,
-        likes: [],
-        comments: [],
-      });
+      }),
+    });
 
-      alert("Successfully shared to community!");
-    } catch (error) {
-      console.error("Error sharing to community:", error);
-      alert("Failed to share to community");
-    } finally {
-      setIsSharing(false);
-    }
-  };
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error);
+    
+    alert("Successfully shared!");
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    setIsSharing(false);
+  }
+};
 
-  const deleteCard = async (e) => {
-    e.stopPropagation();
-    try {
-      await deleteDoc(doc(db, "userPrompts", id));
-      alert("Card deleted successfully");
-      setIsDeleted(true);
-    } catch (error) {
-      console.error("Failed to delete card:", error);
-    }
-  };
+const deleteCard = async (e) => {
+  e.stopPropagation();
+  try {
+    await fetch("/api/userPrompts", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    alert("Deleted successfully");
+    setIsDeleted(true);
+  } catch (error) {
+    alert("Failed to delete card");
+  }
+};
 
   if (isDeleted) return null;
 
@@ -119,7 +115,7 @@ const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
           {/* Adjusted Button Positioning - Moved Outside */}
           <div className="absolute -top-3 right-3 flex space-x-2">
             <button
-              onClick={shareToComminity}
+              onClick={shareToCommunity}
               disabled={isSharing}
               className="bg-darkGreen text-white w-8 h-8 flex items-center justify-center 
               rounded-md shadow-md hover:scale-105 transition-transform 
