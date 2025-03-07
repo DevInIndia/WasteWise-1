@@ -1,9 +1,9 @@
+import { addDoc, collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
 import { motion } from "framer-motion";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { db } from "../../app/firebaseConfig";
-import {  collection, query, where, getDocs, addDoc,doc, deleteDoc } from "firebase/firestore";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { db } from "../../app/firebaseConfig";
 
 const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -122,8 +122,8 @@ const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
               onClick={shareToComminity}
               disabled={isSharing}
               className="bg-darkGreen text-white w-8 h-8 flex items-center justify-center 
-               rounded-md shadow-md hover:scale-105 transition-transform 
-               disabled:opacity-50 disabled:hover:scale-100"
+              rounded-md shadow-md hover:scale-105 transition-transform 
+              disabled:opacity-50 disabled:hover:scale-100"
             >
               {isSharing ? "..." : "+"}
             </button>

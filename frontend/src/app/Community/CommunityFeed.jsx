@@ -1,5 +1,5 @@
 "use client";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { Loader, MessageSquare, ThumbsUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -9,7 +9,6 @@ const Community = () => {
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState("");
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -25,54 +24,12 @@ const Community = () => {
     fetchPosts();
   }, []);
 
-  const handleCreatePost = async () => {
-    if (!newPost.trim()) return;
-    try {
-      const post = {
-        user: session?.user?.name || "Anonymous",
-        content: newPost,
-        timestamp: new Date(),
-        profileImage: session?.user?.image || "",
-      };
-      await addDoc(collection(db, "communityPosts"), post);
-      setPosts((prevPosts) => [post, ...prevPosts]);
-      setNewPost("");
-    } catch (error) {
-      console.error("Error creating post:", error);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center px-4 py-6 md:flex-row md:justify-center">
       <div className="w-full max-w-7xl flex flex-col gap-6 md:flex-row">
         <div className="flex-1 bg-white shadow-lg rounded-xl p-6 flex flex-col gap-6">
           <h2 className="text-darkGreen font-bold text-2xl">Community Feed</h2>
-          <p className="text-gray-600">View groups and posts below.</p>
-
-          {session && (
-            <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-              <div className="flex gap-4 items-center">
-                {session.user.image && (
-                  <img src={session.user.image} alt="Profile" className="w-10 h-10 rounded-full" />
-                )}
-                <input
-                  type="text"
-                  className="flex-1 p-2 border rounded-lg"
-                  placeholder="Share something..."
-                  value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
-                />
-                <button className="bg-darkGreen text-white px-4 py-2 rounded-lg" onClick={handleCreatePost}>
-                  Create a Post
-                </button>
-              </div>
-              <div className="flex mt-2 gap-4">
-                <button className="bg-gray-200 px-4 py-1 rounded">📷 Photo</button>
-                <button className="bg-gray-200 px-4 py-1 rounded">📹 Video</button>
-                <button className="bg-gray-200 px-4 py-1 rounded">🎞 GIF</button>
-              </div>
-            </div>
-          )}
+          <p className="text-gray-600">View posts below.</p>
 
           {loading ? (
             <div className="flex justify-center items-center h-40">
@@ -90,7 +47,7 @@ const Community = () => {
                     )}
                     <div>
                       <h3 className="font-bold">{post.user}</h3>
-                      <p className="text-sm text-gray-500">3 hours ago • posted in WasteWise Group</p>
+                      <p className="text-sm text-gray-500">{}</p>
                     </div>
                   </div>
                   <p className="mt-2">{post.content}</p>
