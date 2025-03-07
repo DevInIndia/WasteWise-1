@@ -13,3 +13,26 @@
     --foreground: #ededed;
   }
 }
+
+
+/* Universal Scrollbar Styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #93bd8d #e5e7eb; /* thumb color and track color */
+}
+
+/* Webkit Browsers (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #93bd8d;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #e5e7eb; /* Equivalent to gray-200 */
+  border-radius: 4px;
+}

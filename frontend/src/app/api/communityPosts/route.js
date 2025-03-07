@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "../../firebaseConfig";
-import { collection, addDoc, query, where, getDocs, orderBy } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, orderBy ,serverTimestamp } from "firebase/firestore";
 
 export async function GET(req) {
   try {
@@ -54,7 +54,7 @@ export async function POST(req) {
       userEmail,
       userName,
       userImage,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
       voteCount: 0, 
       upvotes: [],
       downvotes: [],

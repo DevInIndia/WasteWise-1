@@ -28,7 +28,6 @@ export default function Community() {
     }
   };
   
-
   const handleVote = async (postId, isUpvote) => {
     if (!session) {
       alert("Please sign in to vote");
@@ -75,9 +74,24 @@ export default function Community() {
       alert("Failed to update vote");
     }
   };
-  
-  
-  
+
+  // Helper function to safely format dates
+  const formatDate = (dateValue) => {
+    if (!dateValue) return "";
+    
+    try {
+      // Handle Firestore timestamp objects
+      if (dateValue && typeof dateValue.toDate === 'function') {
+        return new Date(dateValue.toDate()).toLocaleDateString();
+      }
+      
+      // Handle string dates or timestamps
+      return new Date(dateValue).toLocaleDateString();
+    } catch (error) {
+      console.error("Date formatting error:", error);
+      return "";
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4">
@@ -111,6 +125,31 @@ export default function Community() {
                   </button>
                 </div>
                 <div className="flex-1 p-2">
+                  <div className="flex items-center mb-2">
+                    {/* User Profile Icon - Using default avatar if image is missing or broken */}
+                    <div className="w-8 h-8 rounded-full bg-gray-200 mr-2 flex items-center justify-center overflow-hidden">
+                      {post.userImage ? (
+                        <img 
+                          src={post.userImage} 
+                          alt={`${post.userName || 'User'}'s profile`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null; 
+                            e.target.style.display = 'none'; 
+                            e.target.parentNode.innerHTML = `<span className="text-gray-600 text-xs">${post.userName ? post.userName.charAt(0).toUpperCase() : 'U'}</span>`;
+                          }}
+                        />
+                      ) : (
+                        <span className="text-gray-600 text-sm font-medium">
+                          {post.userName ? post.userName.charAt(0).toUpperCase() : 'U'}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm text-gray-600">
+                      {post.userName || 'Anonymous'} 
+                      {formatDate(post.createdAt) ? ` • ${formatDate(post.createdAt)}` : ''}
+                    </span>
+                  </div>
                   <h2 className="text-lg font-semibold">{post.prompt}</h2>
                   {expandedPost === post.id && <p className="text-gray-600 mt-2">{post.result}</p>}
                 </div>
