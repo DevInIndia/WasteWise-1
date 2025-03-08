@@ -1,135 +1,189 @@
-<<<<<<< HEAD
-import CommunityFeed from './CommunityFeed';
+"use client";
+import { addDoc, collection, deleteDoc, doc, getDoc, onSnapshot, orderBy, query, serverTimestamp, updateDoc } from "firebase/firestore";
+import { Loader, MessageSquare, Send, ThumbsUp, Trash2 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { db } from "../firebaseConfig";
 
-const CommunityPage = () => {
-return (
-    <div>
-    <CommunityFeed />
-=======
-"use client"
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
-import { ArrowBigUp, ArrowBigDown, MessageSquare, Share2 } from 'lucide-react';
-
-export default function Community() {
+const CommunityFeed = () => {
   const { data: session } = useSession();
-  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState('new'); // 'new', 'top', 'hot'
-  const [expandedPost, setExpandedPost] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [newPost, setNewPost] = useState("");
+  const [image, setImage] = useState(null);
+  const [commentText, setCommentText] = useState({});
+  const [visibleComments, setVisibleComments] = useState({});
 
   useEffect(() => {
-    fetchPosts();
-  }, [sortBy]);
+    const postsRef = collection(db, "communityPosts");
+    const q = query(postsRef, orderBy("createdAt", "desc"));
 
-  const fetchPosts = async () => {
-    try {
-      const response = await fetch(`/api/communityPosts?sortBy=${sortBy}`);
-      if (!response.ok) throw new Error("Failed to fetch posts");
-  
-      const fetchedPosts = await response.json();
-      setPosts(fetchedPosts);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    } finally {
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
       setLoading(false);
-    }
-  };
-  
+    });
+    return () => unsubscribe();
+  }, []);
 
-  const handleVote = async (postId, isUpvote) => {
-    if (!session) {
-      alert("Please sign in to vote");
-      return;
-    }
-  
-    try {
-      const post = posts.find(p => p.id === postId);
-      const userEmail = session.user.email;
-      
-      // Check if user is trying to vote the same way again
-      if (isUpvote && post.upvotes?.includes(userEmail) || 
-          !isUpvote && post.downvotes?.includes(userEmail)) {
-        // This is a vote cancellation
-      } else if (isUpvote && post.downvotes?.includes(userEmail) ||
-                 !isUpvote && post.upvotes?.includes(userEmail)) {
-        // This is a vote switch
-      }
-  
-      const response = await fetch("/api/communityPosts/vote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId, userEmail, isUpvote }),
-      });
-  
-      const { data } = await response.json();
-      if (!response.ok) throw new Error(data.error);
-  
-      // Update the posts state with the exact data from the server
-      setPosts(prevPosts =>
-        prevPosts.map(post =>
-          post.id === postId
-            ? {
-                ...post,
-                upvotes: data.upvotes,
-                downvotes: data.downvotes,
-                voteCount: data.voteCount
-              }
-            : post
-        )
-      );
-    } catch (error) {
-      console.error("Error voting:", error);
-      alert("Failed to update vote");
-    }
+  const handlePost = async () => {
+    if (!session) return alert("Please sign in to post");
+    if (!newPost.trim() && !image) return;
+
+    await addDoc(collection(db, "communityPosts"), {
+      user: session.user.name,
+      userImage: session.user.image,
+      result: newPost,
+      imageUrl: image,
+      createdAt: serverTimestamp(),
+      likes: [],
+      comments: [],
+    });
+    setNewPost("");
+    setImage(null);
   };
-  
-  
-  
+
+  const handleDelete = async (postId) => {
+    if (!session) return alert("Please sign in to delete posts");
+    await deleteDoc(doc(db, "communityPosts", postId));
+  };
+
+  const handleLike = async (postId) => {
+    if (!session) return alert("Please sign in to like posts");
+    const postRef = doc(db, "communityPosts", postId);
+    const postSnap = await getDoc(postRef);
+    if (!postSnap.exists()) return;
+
+    const post = postSnap.data();
+    let likes = new Set(post.likes || []);
+    if (likes.has(session.user.email)) {
+      likes.delete(session.user.email);
+    } else {
+      likes.add(session.user.email);
+    }
+
+    await updateDoc(postRef, { likes: [...likes] });
+  };
+
+  const handleComment = async (postId) => {
+    if (!session) return alert("Please sign in to comment");
+    if (!commentText[postId]?.trim()) return;
+
+    const postRef = doc(db, "communityPosts", postId);
+    const postSnap = await getDoc(postRef);
+    if (!postSnap.exists()) return;
+
+    const post = postSnap.data();
+    let comments = post.comments || [];
+    comments.push({ user: session.user.name, text: commentText[postId], createdAt: new Date().toISOString() });
+
+    await updateDoc(postRef, { comments });
+    setCommentText((prev) => ({ ...prev, [postId]: "" }));
+  };
+
+  const handleDeleteComment = async (postId, commentIndex) => {
+    if (!session) return alert("Please sign in to delete comments");
+    const postRef = doc(db, "communityPosts", postId);
+    const postSnap = await getDoc(postRef);
+    if (!postSnap.exists()) return;
+
+    const post = postSnap.data();
+    let comments = post.comments || [];
+
+    if (comments[commentIndex]?.user !== session.user.name) return alert("You can only delete your own comments");
+
+    comments.splice(commentIndex, 1);
+    await updateDoc(postRef, { comments });
+  };
+
+  const toggleComments = (postId) => {
+    setVisibleComments((prev) => ({ ...prev, [postId]: !prev[postId] }));
+  };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      {/* Sort Controls */}
-      <div className="flex space-x-4 mb-6">
-        <button onClick={() => setSortBy('new')} className={`px-4 py-2 rounded-full ${sortBy === 'new' ? 'bg-darkGreen text-white' : 'bg-gray-200'}`}>New</button>
-        <button onClick={() => setSortBy('top')} className={`px-4 py-2 rounded-full ${sortBy === 'top' ? 'bg-darkGreen text-white' : 'bg-gray-200'}`}>Top</button>
-        <button onClick={() => setSortBy('hot')} className={`px-4 py-2 rounded-full ${sortBy === 'hot' ? 'bg-darkGreen text-white' : 'bg-gray-200'}`}>Hot</button>
-      </div>
-
-      {/* Posts */}
-      <div className="space-y-4">
-        {loading ? (
-          [...Array(5)].map((_, i) => (
-            <div key={i} className="animate-pulse bg-white rounded-lg p-4 shadow">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center px-4 py-6">
+      <div className="w-full max-w-3xl flex flex-col gap-6">
+        {session && (
+          <div className="bg-white shadow-lg rounded-xl p-6">
+            <div className="flex items-center gap-3">
+              <img src={session.user.image} alt="Profile" className="w-10 h-10 rounded-full" />
+              <textarea
+                className="w-full p-3 border rounded-lg"
+                placeholder="Start a post..."
+                value={newPost}
+                onChange={(e) => setNewPost(e.target.value)}
+              ></textarea>
             </div>
-          ))
+            <div className="flex justify-between mt-2">
+              <div className="flex items-center cursor-pointer">
+              </div>
+              <button
+                className="bg-darkGreen text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                onClick={handlePost}
+              >
+                Post
+              </button>
+            </div>
+          </div>
+        )}
+
+        {loading ? (
+          <Loader className="animate-spin text-darkGreen" size={32} />
+        ) : posts.length === 0 ? (
+          <p className="text-gray-600 text-center">No posts found.</p>
         ) : (
           posts.map(post => (
-            <div key={post.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}>
-              <div className="flex p-4">
-                <div className="flex flex-col items-center p-2 bg-gray-50 rounded-l-lg">
-                  <button onClick={(e) => { e.stopPropagation(); handleVote(post.id, true); }} className={`p-1 rounded ${post.upvotes?.includes(session?.user?.email) ? 'text-darkGreen' : ''}`}>
-                    <ArrowBigUp />
-                  </button>
-                  <span className="my-1 font-bold">{post.voteCount || 0}</span>
-                  <button onClick={(e) => { e.stopPropagation(); handleVote(post.id, false); }} className={`p-1 rounded ${post.downvotes?.includes(session?.user?.email) ? 'text-orange-500' : ''}`}>
-                    <ArrowBigDown />
-                  </button>
+            <div key={post.id} className="bg-white p-4 rounded-lg shadow-lg">
+              <div className="flex items-center gap-3">
+                <img src={post.userImage} alt="Profile" className="w-10 h-10 rounded-full" />
+                <div>
+                  <h3 className="font-bold">{post.user}{post.userName}</h3>
+                  <p className="text-sm text-gray-500">{new Date(post.createdAt?.seconds * 1000).toLocaleString()}</p>
+                  <div>
+                  {session?.user?.name === post.userName && (
+                  <button onClick={() => handleDelete(post.id)} className="ml-auto text-red-500 hover:text-red-700"><Trash2 size={16} /></button>
+                )}
+                  </div>
                 </div>
-                <div className="flex-1 p-2">
-                  <h2 className="text-lg font-semibold">{post.prompt}</h2>
-                  {expandedPost === post.id && <p className="text-gray-600 mt-2">{post.result}</p>}
-                </div>
+                {session?.user?.name === post.user && (
+                  <button onClick={() => handleDelete(post.id)} className="ml-auto text-red-500 hover:text-red-700"><Trash2 size={16} /></button>
+                )}
               </div>
+              <p className="mt-2">{post.prompt}</p>
+              <br />
+              <p className="mt-2">{post.result}</p>
+              <div className="flex gap-4 mt-3 text-gray-600">
+                <button onClick={() => handleLike(post.id)} className="flex items-center gap-1"><ThumbsUp size={16} /> {post.likes?.length || 0} Likes</button>
+              </div>
+              <div className="mt-3">
+                <input type="text" className="w-full p-2 border rounded-lg" placeholder="Write a comment..." value={commentText[post.id] || ""} onChange={(e) => setCommentText({ ...commentText, [post.id]: e.target.value })} />
+                <button onClick={() => handleComment(post.id)} className="ml-2 mt-4 text-blue-500 hover:text-blue-700"><Send size={16} /></button>
+                <button onClick={() => handleComment(post.id)} className="ml-2 text-blue-500 hover:text-blue-700"> Comment</button>
+                <button onClick={() => toggleComments(post.id)} className="flex items-center gap-1">
+                  <MessageSquare size={16} /> {post.comments?.length || 0} Comments
+                </button>
+              </div>
+              {visibleComments[post.id] && (
+                <div className="mt-3">
+                  {post.comments?.map((comment, index) => (
+                    <div key={index} className="mt-2 bg-gray-100 p-2 rounded-lg flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold">{comment.user}</p>
+                        <p>{comment.text}</p>
+                        <p className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleString()}</p>
+                      </div>
+                      {session?.user?.name === comment.user && (
+                        <button onClick={() => handleDeleteComment(post.id, index)} className="text-red-500 hover:text-red-700"><Trash2 size={16} /></button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))
         )}
       </div>
->>>>>>> 3dfd0d23f41a5e1f9d7a35ddec10ad6a656019c3
     </div>
-);
+  );
 };
 
-export default CommunityPage;
+export default CommunityFeed;
