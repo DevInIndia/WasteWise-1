@@ -1,9 +1,7 @@
-import { addDoc, collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { db } from "../../app/firebaseConfig";
 
 const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
   const [isOpen, setIsOpen] = useState(false);
