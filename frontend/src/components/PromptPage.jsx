@@ -69,6 +69,8 @@ export default function PromptPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             userEmail: user.email,
+            userName: user.name,         
+            userImage: user.image,     
             prompt: text,
             result: responseText,
             imageUrl: imageUrl,
