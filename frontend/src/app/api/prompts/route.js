@@ -5,7 +5,7 @@ import { collection, query, where, getDocs,addDoc ,serverTimestamp} from "fireba
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { userEmail, prompt, result, imageUrl } = body;
+    const { userEmail, userName, userImage, prompt, result, imageUrl } = body;
     if (!userEmail || !prompt || !result) {
       console.error(" Missing required fields!");
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -13,6 +13,8 @@ export async function POST(req) {
 
     await addDoc(collection(db, "userPrompts"), {
       userEmail,
+      userName,
+      userImage,
       prompt,
       result,
       imageUrl,

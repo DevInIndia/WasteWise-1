@@ -6,7 +6,6 @@ import { useState } from "react";
 const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
-  const router = useRouter();
   const { data: session } = useSession();
   const [isSharing, setIsSharing] = useState(false);
   const date = new Date(createdAt.seconds * 1000);
