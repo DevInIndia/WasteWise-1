@@ -6,7 +6,7 @@ import { addComment, removeComment } from "./firebaseOperations";
 const CommentSection = ({ post, session }) => {
 const [commentText, setCommentText] = useState("");
 return (
-    <div className="mt-4 bg-white shadow-md rounded-lg p-4 border border-gray-200">
+    <div className="comment-section mt-4 bg-white shadow-md rounded-lg p-4 border border-gray-200">
     <div className="flex items-center gap-2">
         <input
         type="text"

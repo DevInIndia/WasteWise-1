@@ -5,35 +5,6 @@ import { useEffect, useState } from 'react';
 
 
 const Profile = () => {
-<<<<<<< HEAD
-    const { data: session, status } = useSession();
-    const [loading, setLoading] = useState(true);
-    const [prompts,setPrompts]=useState([]);
-    // Fetch user prompts from Firestore
-    useEffect(() => {
-      if (session?.user?.email) {
-        const fetchPrompts = async () => {
-          try {
-            // Query the userPrompts collection and filter by user email
-            const promptsRef = collection(db, "userPrompts");
-            const q = query(promptsRef, where("userEmail", "==", session.user.email));
-  
-            const querySnapshot = await getDocs(q);
-  
-            if (querySnapshot.empty) {
-              console.log("No prompts found.");
-            } else {
-              const userPrompts = querySnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-              }));
-  
-              console.log("Fetched Prompts:", userPrompts);
-              setPrompts(userPrompts);
-            }
-          } catch (error) {
-            console.error("Error fetching prompts:", error);
-=======
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
   const [prompts, setPrompts] = useState([]);
@@ -49,7 +20,6 @@ const Profile = () => {
 
           if (!response.ok) {
             throw new Error('Error fetching prompts');
->>>>>>> ed5f46724159309e45f73333bc2bfd73436657bb
           }
           const data = await response.json();
           setPrompts(data);
