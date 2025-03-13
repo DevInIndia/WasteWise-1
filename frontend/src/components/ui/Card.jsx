@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const Card = ({ id, imageUrl, prompt, result, createdAt }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -114,8 +115,8 @@ const deleteCard = async (e) => {
               onClick={shareToCommunity}
               disabled={isSharing}
               className="bg-darkGreen text-white w-8 h-8 flex items-center justify-center 
-               rounded-md shadow-md hover:scale-105 transition-transform 
-               disabled:opacity-50 disabled:hover:scale-100"
+              rounded-md shadow-md hover:scale-105 transition-transform 
+              disabled:opacity-50 disabled:hover:scale-100"
             >
               {isSharing ? "..." : "+"}
             </button>
