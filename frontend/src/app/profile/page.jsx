@@ -55,7 +55,7 @@ const Profile = () => {
           )}
           </>
         ) : (
-          <p className='text-center text-red-500 font-semibold'>You must be logged in to view this page - protected route</p>
+          <p className='text-center text-darkGreen font-semibold'>You must be logged in to view this page</p>
         )}
       </div>
       </div>
