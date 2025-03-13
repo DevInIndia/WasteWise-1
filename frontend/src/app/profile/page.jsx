@@ -1,12 +1,11 @@
 "use client"
 import CardList from '@/src/components/ui/CardList';
-import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { db } from '../firebaseConfig';
 
 
 const Profile = () => {
+<<<<<<< HEAD
     const { data: session, status } = useSession();
     const [loading, setLoading] = useState(true);
     const [prompts,setPrompts]=useState([]);
@@ -34,8 +33,30 @@ const Profile = () => {
             }
           } catch (error) {
             console.error("Error fetching prompts:", error);
+=======
+  const { data: session, status } = useSession();
+  const [loading, setLoading] = useState(true);
+  const [prompts, setPrompts] = useState([]);
+
+  // Fetch user prompts from Firestore
+  useEffect(() => {
+    if (session?.user?.email) {
+      const fetchPrompts = async () => {
+        try {
+          const response = await fetch(`/api/prompts?email=${session.user.email}`, {  // query parameter for email
+            method: 'GET',
+          });
+
+          if (!response.ok) {
+            throw new Error('Error fetching prompts');
+>>>>>>> ed5f46724159309e45f73333bc2bfd73436657bb
           }
-        };
+          const data = await response.json();
+          setPrompts(data);
+        } catch (error) {
+          console.error('Error fetching prompts:', error);
+        }
+      };
   
         fetchPrompts();
       }
@@ -50,21 +71,23 @@ const Profile = () => {
   }, [session]);
 
     return (
-      <div className='p-4'>
+      <div className="min-h-screen bg-gray-100 dark:bg-white-900 text-gray-900 dark:text-gray-100 p-6 flex flex-col items-center">
+        <div className="w-full max-w-4xl bg-white dark:bg-white-00 shadow-md rounded-lg p-6">
         {loading ? (
-          <p>Loading...</p>
+          <p className="text-center text-lg font-medium">Loading...</p>
         ) : session ? (
           <>
-          <p className='text-darkGreen font-extrabold text-2xl'>Disposal history:</p>
+          <p className='text-darkGreen font-extrabold text-3xl mb-4 text-center'>Disposal history:</p>
           {prompts.length === 0 ? (
-            <p>No prompts found.</p>
+            <p className='text-center text-gray-500'>No prompts found.</p>
           ) : (
             <CardList data={prompts} />
           )}
           </>
         ) : (
-          <p>You must be logged in to view this page - protected route</p>
+          <p className='text-center text-darkGreen font-semibold'>You must be logged in to view this page</p>
         )}
+      </div>
       </div>
     );
 };

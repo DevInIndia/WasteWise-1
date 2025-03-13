@@ -1,23 +1,9 @@
+import { addDoc, collection, getDocs, query, serverTimestamp, where } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import { db } from "../../firebaseConfig";
-import { collection, addDoc, query, where, getDocs, orderBy } from "firebase/firestore";
 
 export async function GET(req) {
   try {
-    const url = new URL(req.url);
-    const sortBy = url.searchParams.get("sortBy") || "new";
-
-    let q;
-    switch (sortBy) {
-      case "top":
-        q = query(collection(db, "communityPosts"), orderBy("voteCount", "desc"));
-        break;
-      case "hot":
-        q = query(collection(db, "communityPosts"), orderBy("commentCount", "desc"));
-        break;
-      default: // 'new'
-        q = query(collection(db, "communityPosts"), orderBy("createdAt", "desc"));
-    }
 
     const snapshot = await getDocs(q);
     const fetchedPosts = snapshot.docs.map(doc => ({
@@ -54,10 +40,7 @@ export async function POST(req) {
       userEmail,
       userName,
       userImage,
-      createdAt: new Date(),
-      voteCount: 0, 
-      upvotes: [],
-      downvotes: [],
+      createdAt: serverTimestamp(),
       comments: [],
     });
 
