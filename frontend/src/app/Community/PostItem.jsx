@@ -5,12 +5,18 @@ import { deletePost, toggleLike } from "./firebaseOperations";
 
 const PostItem = ({ post, session }) => {
   const [expanded, setExpanded] = useState(false);
+  const [showComments, setShowComments] = useState(false); // Track comment section visibility
   const maxPreviewLength = 150; // Limit preview text
 
   return (
     <div
       className="bg-white shadow-md rounded-xl p-6 border border-gray-200 cursor-pointer transition hover:shadow-lg"
-      onClick={() => setExpanded(!expanded)}
+      onClick={(e) => {
+        // Prevent collapsing when clicking inside the comment section
+        if (!e.target.closest(".comment-section")) {
+          setExpanded(!expanded);
+        }
+      }}
     >
       <div className="flex items-center gap-4">
         <img
@@ -19,12 +25,12 @@ const PostItem = ({ post, session }) => {
           className="w-12 h-12 rounded-full border border-gray-300"
         />
         <div>
-          <h3 className="font-bold text-gray-800">{post.userName}</h3>
+          <h3 className="font-bold text-gray-800">{post.userName}{post.user}</h3>
           <p className="text-sm text-gray-500">
             {new Date(post.createdAt?.seconds * 1000).toLocaleString()}
           </p>
         </div>
-        {session?.user?.name === post.userName && (
+        {(session?.user?.name === post.userName || session?.user?.name === post.user ) && (
           <button
             onClick={(e) => {
               e.stopPropagation(); // Prevent post from expanding when deleting
@@ -60,10 +66,13 @@ const PostItem = ({ post, session }) => {
         >
           <ThumbsUp size={16} /> {post.likes?.length || 0} Likes
         </button>
+
+        {/* Comment button toggles comment section visibility */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             setExpanded(true); // Show full post when viewing comments
+            setShowComments(!showComments); // Toggle only comments
           }}
           className="flex items-center gap-2 hover:text-blue-600"
         >
@@ -71,8 +80,8 @@ const PostItem = ({ post, session }) => {
         </button>
       </div>
 
-      {/* Comments only show when post is expanded */}
-      {expanded && <CommentSection post={post} session={session} />}
+      {/* Comments only show when post is expanded and showComment is true */}
+      {expanded && showComments && <CommentSection post={post} session={session} />}
     </div>
   );
 };
