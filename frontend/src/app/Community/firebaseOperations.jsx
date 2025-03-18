@@ -3,6 +3,8 @@
 export const fetchPosts = (setPosts, setLoading, setError) => {
     setLoading(true);
 
+    let eventSource;
+
     try {
         // Initial fetch for existing posts
         const fetchData = async () => {
@@ -23,21 +25,28 @@ export const fetchPosts = (setPosts, setLoading, setError) => {
         fetchData(); // Fetch existing posts once
 
         // Set up SSE for real-time updates
-        const eventSource = new EventSource("/api/posts/stream");
+        const connectSSE = () => {
+            eventSource = new EventSource("/api/posts/stream");
 
-        eventSource.onmessage = (event) => {
-            setPosts(JSON.parse(event.data));
-            setLoading(false);
+            eventSource.onmessage = (event) => {
+                setPosts(JSON.parse(event.data));
+                setLoading(false);
+            };
+
+            eventSource.onerror = (error) => {
+                console.error("SSE Error:", error);
+                setError("Reconnecting...");
+                eventSource.close();
+
+                // Attempt to reconnect after 3 seconds
+                setTimeout(connectSSE, 3000);
+            };
         };
 
-        eventSource.onerror = (error) => {
-            console.error("SSE error:", error);
-            setError("Failed to connect to live updates.");
-            setLoading(false);
-            eventSource.close();
-        };
+        connectSSE(); // Start SSE
 
-        return () => eventSource.close(); // Cleanup on unmount
+        return() => eventSource.close(); // Cleanup when component unmounts
+        
     } catch (error) {
         console.error("Error setting up SSE:", error.message);
         setError(error.message);
