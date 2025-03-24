@@ -9,7 +9,7 @@ export const getPostsQuery = () => {
 
 export const listenToPosts = (callback) => {
     const postsRef = collection(db, "communityPosts");
-    const q = query(postsRef, orderBy("createdAt", "desc"), limit(50)); // Load only 50 posts
+    const q = query(postsRef, orderBy("createdAt", "desc"));
 
     // Firestore real-time listener
     const unsubscribe = onSnapshot(q, (snapshot) => {
