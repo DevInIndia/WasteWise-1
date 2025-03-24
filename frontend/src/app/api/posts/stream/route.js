@@ -1,5 +1,7 @@
 import { listenToPosts } from "../../communityPosts/firebaseQueries";
 
+export const config = { runtime: "edge" }; // Run on Edge for faster execution
+
 export async function GET(req) {
     return new Response(new ReadableStream({
         start(controller) {

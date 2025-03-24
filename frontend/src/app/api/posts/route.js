@@ -3,16 +3,19 @@ import { getDocs } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import { addPostToDB, deletePostFromDB, getPostsQuery } from "../../api/communityPosts/firebaseQueries";
 
+export const revalidate = 10; // Revalidate cache every 10 seconds
+
 export async function GET() {
     try {
         const q = getPostsQuery();
         const snapshot = await getDocs(q);
         const posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-        return NextResponse.json(posts);
+        return new Response(json.stringify(posts), {
+            headers: { "Content-Type": "application/json", "Cache-Control": "s-maxage=10, stale-while-revalidate" },
+        });
     } catch (error) {
-        console.error("Error fetching posts:", error.message);
-        return NextResponse.json({ error: "Failed to load posts" }, { status: 500 });
+        return new Response(JSON.stringify({ error: "Failed to load posts" }), { status: 500 });
     }
 }
 
