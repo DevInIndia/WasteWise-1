@@ -36,16 +36,15 @@ WasteWise aligns with:
 ![1. **User Authentication** – Secure sign-in via Google authentication.
 2. **Community Engagement** – Post, like, and comment on waste management discussions.
 3. **AI Categorization** – Upload images of waste items to get AI-powered classification.
-5. **Real-time Updates** – Stay updated with waste tracking progress and community discussions.
-](https://github.com/user-attachments/assets/f28e8ff8-466a-4d56-a20b-40c797e6591f)
+5. **Real-time Updates** – Stay updated with waste tracking progress and community discussions.](https://github.com/user-attachments/assets/f28e8ff8-466a-4d56-a20b-40c797e6591f)
 
 # 🏗️ System Architecture
-![The system consists of:
-- **Frontend**: Next.js web application.
-- **Backend**: Firebase Firestore for real-time data handling.
-- **AI Component**: Gemini AI for waste categorization.
-- **Authentication & Security**: Firebase Authentication and secure API routes.
-- **Hosting & Deployment**: Vercel for frontend, Firebase for backend services.](https://github.com/user-attachments/assets/a3fee04f-2f3d-406f-9117-baf966c07d67)
+[The system consists of:
+**Frontend**: Next.js web application.
+**Backend**: Firebase Firestore for real-time data handling.
+**AI Component**: Gemini AI for waste categorization.
+**Authentication & Security**: Firebase Authentication and secure API routes.
+**Hosting & Deployment**: Vercel for frontend, Firebase for backend services.](https://github.com/user-attachments/assets/3ea6c5f0-c53c-414f-a89f-560344789788)
 
 
 # 🛠️ Installation & Setup
