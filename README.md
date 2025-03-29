@@ -39,7 +39,7 @@ WasteWise aligns with:
 5. **Real-time Updates** – Stay updated with waste tracking progress and community discussions.](https://github.com/user-attachments/assets/f28e8ff8-466a-4d56-a20b-40c797e6591f)
 
 # 🏗️ System Architecture
-[The system consists of:
+![The system consists of:
 **Frontend**: Next.js web application.
 **Backend**: Firebase Firestore for real-time data handling.
 **AI Component**: Gemini AI for waste categorization.
