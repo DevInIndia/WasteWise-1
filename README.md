@@ -8,7 +8,8 @@ The growing crisis of **e-waste** and improper waste disposal is a significant e
 WasteWise aligns with:
 - **SDG 11 (Sustainable Cities and Communities)** – Promoting efficient waste management practices.
 - **SDG 12 (Responsible Consumption and Production)** – Encouraging sustainable waste disposal and recycling.
-
+- **SDG 13 (Climate Action)** - Proper waste management reduces landfill waste, lowers greenhouse gas emissions, and minimizes environmental pollution.
+  
 # 🚀 Features
 ### 🏡 Community Forum
 - Users can share best practices, ideas, and environmental initiatives.
