@@ -94,10 +94,10 @@ This project is licensed under the **MIT License**.
 # 👨‍💻👩‍💻 Our Team
 We are a team of engineers from **Zakir Husain College of Engineering and Technology, AMU**, and part of **Google Developer Student Clubs (GDSC) - ZHCET**.
 
-- **Arslaan Azam** – [LinkedIn](https://www.linkedin.com/in/mohdarslaanazam/) | [Email](mohdarslaanazam@gmail.com)
-- **Quteba Ahsan** – [LinkedIn](https://www.linkedin.com/in/quteba-ahsan-6529992a1) | [Email](qutebaahsan@gmail.com)
-- **Roshaid Atique** – [LinkedIn](https://www.linkedin.com/in/roshaid-atique-020052287) | [Email](roshaid2004@gmail.com)
-- **Shashank Chauhan (Team Lead)** – [LinkedIn](www.linkedin.com/in/shashank-chauhan-b492a1311) | [Email](shashankchauhan2518@gmail.com)
+- **Arslaan Azam** – [LinkedIn](https://www.linkedin.com/in/mohdarslaanazam/) | [Email](mailto:mohdarslaanazam@gmail.com)
+- **Quteba Ahsan** – [LinkedIn](https://www.linkedin.com/in/quteba-ahsan-6529992a1) | [Email](mailto:qutebaahsan@gmail.com)
+- **Roshaid Atique** – [LinkedIn](https://www.linkedin.com/in/roshaid-atique-020052287) | [Email](mailto:roshaid2004@gmail.com)
+- **Shashank Chauhan (Team Lead)** – [LinkedIn](https://www.linkedin.com/in/shashank-chauhan-b492a1311) | [Email](mailto:shashankchauhan2518@gmail.com)
 
 Thank you for checking out **WasteWise**! 🚀
 
